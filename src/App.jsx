@@ -76,7 +76,7 @@ const LABS = [
       },
       {
         id: "3b",
-        text: "Выведите таблицу умножения числа 7 (от 7×1 до 7×10).",
+        text: "Выведите таблицу умножения числа 7 (от 7x1 до 7x10).",
         hint: "for i in range(1, 11):\n    print(f'7 x {i} = {7*i}')",
         check: (o) => o.includes("49") && o.includes("70"),
         checkDesc: "Должны быть числа 49 и 70",
@@ -90,9 +90,9 @@ const LABS = [
     tasks: [
       {
         id: "4a",
-        text: "Напишите функцию greet(name), которая возвращает строку 'Привет, {name}!'. Вызовите с именем 'Мир'.",
+        text: "Напишите функцию greet(name), которая возвращает строку 'Privet, {name}!'. Вызовите с именем 'Mir'.",
         hint: "def greet(name):\n    return f'Privet, {name}!'\n\nprint(greet('Mir'))",
-        check: (o) => o.length > 0,
+        check: (o) => o.trim().length > 0,
         checkDesc: "Функция должна что-то вывести",
       },
       {
@@ -203,29 +203,38 @@ const css = `
   body { background: ${C.bg}; color: ${C.textPrimary}; font-family: 'Syne', sans-serif; user-select: none; -webkit-user-select: none; }
   input, textarea { user-select: text; -webkit-user-select: text; }
   .center { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-  .glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
-  .card { background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 20px; padding: 48px; width: 440px; position: relative; z-index: 1; }
-  .logo { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: ${C.accent}; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 32px; }
-  .title { font-size: 30px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
-  .sub { font-size: 15px; color: ${C.textSecondary}; margin-bottom: 36px; line-height: 1.6; }
-  .lbl { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: ${C.textSecondary}; margin-bottom: 8px; display: block; }
-  .inp { width: 100%; background: ${C.card}; border: 1px solid ${C.border}; border-radius: 10px; padding: 14px 16px; font-size: 16px; color: ${C.textPrimary}; font-family: 'Syne', sans-serif; outline: none; transition: border-color 0.2s; }
+  .glow { position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(108,99,255,0.1) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+  .login-card { background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 24px; padding: 52px 48px; width: 460px; position: relative; z-index: 1; }
+  .login-badge { display: inline-flex; align-items: center; gap: 8px; background: ${C.accent}18; border: 1px solid ${C.accent}33; border-radius: 20px; padding: 6px 14px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: ${C.accentLight}; letter-spacing: 0.08em; margin-bottom: 28px; }
+  .login-title { font-size: 32px; font-weight: 700; line-height: 1.15; margin-bottom: 10px; }
+  .login-sub { font-size: 15px; color: ${C.textSecondary}; margin-bottom: 40px; line-height: 1.65; }
+  .google-btn { width: 100%; background: #fff; color: #1f1f1f; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px 20px; font-size: 15px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .google-btn:hover { background: #f8f8f8; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+  .google-btn:active { transform: scale(0.98); }
+  .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+  .divider-line { flex: 1; height: 1px; background: ${C.border}; }
+  .divider-txt { font-size: 12px; color: ${C.textMuted}; }
+  .teacher-toggle { width: 100%; background: transparent; border: 1px solid ${C.border}; border-radius: 12px; padding: 13px 20px; font-size: 14px; color: ${C.textSecondary}; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.2s; }
+  .teacher-toggle:hover { border-color: ${C.accent}44; color: ${C.textPrimary}; }
+  .teacher-box { margin-top: 12px; padding: 18px; background: ${C.card}; border-radius: 12px; border: 1px solid ${C.border}; }
+  .lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: ${C.textMuted}; margin-bottom: 8px; display: block; }
+  .inp { width: 100%; background: ${C.bg}; border: 1px solid ${C.border}; border-radius: 8px; padding: 12px 14px; font-size: 15px; color: ${C.textPrimary}; font-family: 'Syne', sans-serif; outline: none; transition: border-color 0.2s; margin-bottom: 10px; }
   .inp:focus { border-color: ${C.accent}; }
   .inp::placeholder { color: ${C.textMuted}; }
-  .btn { width: 100%; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; }
-  .btn-purple { background: ${C.accent}; color: #fff; }
+  .btn-purple { width: 100%; background: ${C.accent}; color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 14px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; transition: background 0.2s; }
   .btn-purple:hover { background: ${C.accentLight}; }
-  .btn-google { background: #fff; color: #333; border: 1px solid #ddd; }
-  .btn-google:hover { background: #f5f5f5; }
-  .btn-sm { background: transparent; color: ${C.textSecondary}; border: 1px solid ${C.border}; border-radius: 8px; padding: 8px 14px; font-size: 13px; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.2s; }
-  .btn-sm:hover { border-color: ${C.accent}; color: ${C.accent}; }
+  .err-box { background: ${C.red}11; border: 1px solid ${C.red}33; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: ${C.red}; margin-top: 12px; line-height: 1.5; }
+
   .app { min-height: 100vh; display: flex; flex-direction: column; }
   .topbar { background: ${C.surface}; border-bottom: 1px solid ${C.border}; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .topbar-logo { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: ${C.accent}; letter-spacing: 0.1em; }
   .topbar-right { display: flex; align-items: center; gap: 10px; }
-  .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid ${C.accent}44; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid ${C.accent}44; flex-shrink: 0; }
   .avatar-txt { width: 32px; height: 32px; border-radius: 50%; background: ${C.accent}22; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: ${C.accentLight}; flex-shrink: 0; }
   .uname { font-size: 14px; color: ${C.textSecondary}; }
+  .btn-sm { background: transparent; color: ${C.textSecondary}; border: 1px solid ${C.border}; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.2s; }
+  .btn-sm:hover { border-color: ${C.accent}; color: ${C.accent}; }
+
   .layout { display: flex; flex: 1; }
   .sidebar { width: 260px; background: ${C.surface}; border-right: 1px solid ${C.border}; padding: 20px 12px; flex-shrink: 0; }
   .s-title { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: ${C.textMuted}; padding: 0 8px; margin-bottom: 12px; }
@@ -239,12 +248,14 @@ const css = `
   .badge { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
   .b-done { background: ${C.green}22; color: ${C.green}; }
   .b-lock { background: ${C.textMuted}22; color: ${C.textMuted}; }
+
   .content { flex: 1; padding: 32px; overflow-y: auto; max-width: 900px; }
   .lab-no { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${C.accent}; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
   .lab-ttl { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
   .lab-dsc { font-size: 15px; color: ${C.textSecondary}; line-height: 1.6; }
   .prog-wrap { height: 4px; background: ${C.border}; border-radius: 2px; margin: 20px 0 28px; overflow: hidden; }
   .prog-bar { height: 100%; background: ${C.accent}; border-radius: 2px; transition: width 0.5s ease; }
+
   .task { background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 16px; padding: 24px; margin-bottom: 20px; }
   .task.done { border-color: ${C.green}44; }
   .task-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
@@ -272,6 +283,7 @@ const css = `
   .next-btn { display: flex; align-items: center; gap: 6px; background: ${C.accent}; color: #fff; border: none; border-radius: 10px; padding: 13px 22px; font-size: 15px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; margin-top: 20px; }
   .next-btn:hover { background: ${C.accentLight}; }
   .fin { background: ${C.green}0f; border: 1px solid ${C.green}33; border-radius: 16px; padding: 32px; text-align: center; margin-top: 20px; }
+
   .t-wrap { flex: 1; padding: 32px; overflow-y: auto; }
   .stats { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
   .stat { background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 12px; padding: 20px 24px; flex: 1; min-width: 130px; }
@@ -292,8 +304,9 @@ const css = `
   .exp-btn { font-size: 12px; color: ${C.textMuted}; background: none; border: none; cursor: pointer; font-family: 'Syne', sans-serif; white-space: nowrap; }
   .exp-btn:hover { color: ${C.accent}; }
   .code-view { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: ${C.textSecondary}; background: ${C.bg}; border: 1px solid ${C.border}; border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; margin-top: 8px; max-height: 120px; overflow-y: auto; }
-  .loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-size: 15px; color: ${C.textSecondary}; }
-  .err-box { background: ${C.red}11; border: 1px solid ${C.red}44; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: ${C.red}; margin-top: 16px; line-height: 1.5; }
+  .loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .spinner { width: 36px; height: 36px; border: 3px solid ${C.border}; border-top-color: ${C.accent}; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 `;
 
 export default function App() {
@@ -339,12 +352,12 @@ export default function App() {
     };
   }, [role]);
 
-  // Слушаем авторизацию Firebase
+  // Firebase auth listener
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
-      setUser(u);
       setAuthLoading(false);
       if (u) {
+        setUser(u);
         if (u.email === TEACHER_EMAIL) {
           setRole("teacher");
           setScreen("teacher");
@@ -355,7 +368,9 @@ export default function App() {
           await loadStudentData(u.uid);
         }
       } else {
+        setUser(null);
         setScreen("login");
+        setRole("student");
       }
     });
     return unsub;
@@ -370,7 +385,7 @@ export default function App() {
         setCodes(d.codes || {});
       }
     } catch (e) {
-      console.error("loadStudentData error:", e);
+      console.error("loadStudentData:", e);
     }
   }
 
@@ -391,7 +406,7 @@ export default function App() {
         codes: cds,
       }, { merge: true });
     } catch (e) {
-      console.error("saveToFirestore error:", e);
+      console.error("saveToFirestore:", e);
     }
   }
 
@@ -400,14 +415,15 @@ export default function App() {
     try {
       await signInWithPopup(auth, provider);
     } catch (e) {
+      if (e.code === "auth/popup-closed-by-user") return;
       setAuthError("Ошибка входа: " + e.message);
     }
   }
 
   async function handleLogout() {
     await signOut(auth);
-    setScreen("login");
     setUser(null);
+    setScreen("login");
     setRole("student");
     setCodes({});
     setTasksDone({});
@@ -444,8 +460,17 @@ export default function App() {
     return LABS[idx - 1].tasks.every(t => tasksDone[t.id]);
   }
 
+  // ── ЗАГРУЗКА ──────────────────────────────────────────────────────────────
   if (authLoading) {
-    return <><style>{css}</style><div className="loading">Загрузка...</div></>;
+    return (
+      <>
+        <style>{css}</style>
+        <div className="loading" style={{ background: C.bg }}>
+          <div className="spinner" />
+          <span style={{ fontSize: 14, color: C.textMuted }}>Загрузка...</span>
+        </div>
+      </>
+    );
   }
 
   // ── ЭКРАН ВХОДА ───────────────────────────────────────────────────────────
@@ -455,13 +480,17 @@ export default function App() {
         <style>{css}</style>
         <div className="center">
           <div className="glow" />
-          <div className="card">
-            <div className="logo">Python Labs</div>
-            <h1 className="title">Добро пожаловать</h1>
-            <p className="sub">Войдите через Google чтобы начать лабораторные работы и сохранять прогресс</p>
+          <div className="login-card">
+            <div className="login-badge">
+              <span>🐍</span> Python Labs
+            </div>
+            <h1 className="login-title">Войдите чтобы начать</h1>
+            <p className="login-sub">
+              Войдите через Google — прогресс сохраняется автоматически и доступен с любого устройства.
+            </p>
 
-            <button className="btn btn-google" onClick={handleGoogleLogin}>
-              <svg width="18" height="18" viewBox="0 0 48 48">
+            <button className="google-btn" onClick={handleGoogleLogin}>
+              <svg width="20" height="20" viewBox="0 0 48 48">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                 <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
                 <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
@@ -472,25 +501,25 @@ export default function App() {
 
             {authError && <div className="err-box">{authError}</div>}
 
-            <div style={{ textAlign: "center", marginTop: 20 }}>
-              <button
-                onClick={() => setShowTeacherPass(p => !p)}
-                style={{ background: "none", border: "none", fontSize: 11, color: C.textMuted, cursor: "pointer", fontFamily: "'Syne', sans-serif" }}
-              >
-                Преподаватель
-              </button>
+            <div className="divider">
+              <div className="divider-line" />
+              <span className="divider-txt">преподаватель</span>
+              <div className="divider-line" />
             </div>
 
+            <button className="teacher-toggle" onClick={() => { setShowTeacherPass(p => !p); setAuthError(""); }}>
+              {showTeacherPass ? "Скрыть ▲" : "Войти как преподаватель ▼"}
+            </button>
+
             {showTeacherPass && (
-              <div style={{ marginTop: 12, padding: 16, background: C.card, borderRadius: 10, border: `1px solid ${C.border}` }}>
-                <label className="lbl">Пароль преподавателя</label>
+              <div className="teacher-box">
+                <label className="lbl">Пароль</label>
                 <input
                   className="inp"
                   type="password"
                   placeholder="Введите пароль"
                   value={teacherPass}
                   onChange={e => setTeacherPass(e.target.value)}
-                  style={{ marginBottom: 10 }}
                   onKeyDown={e => {
                     if (e.key === "Enter") {
                       if (teacherPass === "teacher123") {
@@ -503,21 +532,18 @@ export default function App() {
                     }
                   }}
                 />
-                <button
-                  className="btn btn-purple"
-                  style={{ marginBottom: 0 }}
-                  onClick={() => {
-                    if (teacherPass === "teacher123") {
-                      setRole("teacher");
-                      setScreen("teacher");
-                      loadAllStudents();
-                    } else {
-                      setAuthError("Неверный пароль");
-                    }
-                  }}
-                >
+                <button className="btn-purple" onClick={() => {
+                  if (teacherPass === "teacher123") {
+                    setRole("teacher");
+                    setScreen("teacher");
+                    loadAllStudents();
+                  } else {
+                    setAuthError("Неверный пароль");
+                  }
+                }}>
                   Войти →
                 </button>
+                {authError && <div className="err-box" style={{ marginTop: 10 }}>{authError}</div>}
               </div>
             )}
           </div>
@@ -535,9 +561,8 @@ export default function App() {
       return Date.now() - t.getTime() < 30 * 60 * 1000;
     }).length;
     const avgPct = total === 0 ? 0 : Math.round(
-      allStudents.reduce((sum, s) => {
-        return sum + Object.values(s.tasksDone || {}).filter(Boolean).length / totalTasks * 100;
-      }, 0) / total
+      allStudents.reduce((sum, s) =>
+        sum + Object.values(s.tasksDone || {}).filter(Boolean).length / totalTasks * 100, 0) / total
     );
 
     return (
@@ -545,7 +570,7 @@ export default function App() {
         <style>{css}</style>
         <div className="app">
           <div className="topbar">
-            <div className="topbar-logo">Python Labs — Преподаватель</div>
+            <div className="topbar-logo">🐍 Python Labs — Преподаватель</div>
             <div className="topbar-right">
               {user?.photoURL
                 ? <img src={user.photoURL} className="avatar" alt="" />
@@ -558,13 +583,27 @@ export default function App() {
 
           <div className="t-wrap">
             <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 6 }}>Прогресс студентов</h1>
-            <p style={{ fontSize: 14, color: C.textSecondary, marginBottom: 28 }}>Данные обновляются в реальном времени</p>
+            <p style={{ fontSize: 14, color: C.textSecondary, marginBottom: 28 }}>
+              Данные обновляются в реальном времени
+            </p>
 
             <div className="stats">
-              <div className="stat"><div className="stat-v" style={{ color: C.accentLight }}>{total}</div><div className="stat-l">Студентов</div></div>
-              <div className="stat"><div className="stat-v" style={{ color: C.green }}>{active}</div><div className="stat-l">Онлайн (30 мин)</div></div>
-              <div className="stat"><div className="stat-v" style={{ color: C.yellow }}>{avgPct}%</div><div className="stat-l">Средний прогресс</div></div>
-              <div className="stat"><div className="stat-v">{totalTasks}</div><div className="stat-l">Заданий всего</div></div>
+              <div className="stat">
+                <div className="stat-v" style={{ color: C.accentLight }}>{total}</div>
+                <div className="stat-l">Студентов</div>
+              </div>
+              <div className="stat">
+                <div className="stat-v" style={{ color: C.green }}>{active}</div>
+                <div className="stat-l">Онлайн (30 мин)</div>
+              </div>
+              <div className="stat">
+                <div className="stat-v" style={{ color: C.yellow }}>{avgPct}%</div>
+                <div className="stat-l">Средний прогресс</div>
+              </div>
+              <div className="stat">
+                <div className="stat-v">{totalTasks}</div>
+                <div className="stat-l">Заданий всего</div>
+              </div>
             </div>
 
             {allStudents.length === 0 && (
@@ -581,7 +620,9 @@ export default function App() {
               const lastSeenDate = s.lastSeen?.toDate
                 ? s.lastSeen.toDate()
                 : s.lastSeen ? new Date(s.lastSeen) : null;
-              const diff = lastSeenDate ? Math.round((Date.now() - lastSeenDate.getTime()) / 60000) : 999;
+              const diff = lastSeenDate
+                ? Math.round((Date.now() - lastSeenDate.getTime()) / 60000)
+                : 999;
               const online = diff < 30;
 
               return (
@@ -592,11 +633,15 @@ export default function App() {
                       : <div className="avatar-txt">{(s.name || "?")[0].toUpperCase()}</div>
                     }
                     <span className="s-name">{s.name || s.email}</span>
-                    <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: online ? C.green + "22" : C.border, color: online ? C.green : C.textMuted, whiteSpace: "nowrap" }}>
-                      {online ? "● онлайн" : lastSeenDate ? (diff < 60 ? `${diff} мин назад` : lastSeenDate.toLocaleDateString("ru-RU")) : "нет данных"}
+                    <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, whiteSpace: "nowrap", background: online ? C.green + "22" : C.border, color: online ? C.green : C.textMuted }}>
+                      {online ? "● онлайн" : lastSeenDate
+                        ? (diff < 60 ? `${diff} мин назад` : lastSeenDate.toLocaleDateString("ru-RU"))
+                        : "нет данных"}
                     </span>
                     <div className="mbar">
-                      <div className="mbar-t"><div className="mbar-f" style={{ width: pct + "%" }} /></div>
+                      <div className="mbar-t">
+                        <div className="mbar-f" style={{ width: pct + "%" }} />
+                      </div>
                       <div className="pct">{pct}%</div>
                     </div>
                     <button className="exp-btn" onClick={() => setExpandedStudent(isExp ? null : i)}>
@@ -655,7 +700,7 @@ export default function App() {
       <style>{css}</style>
       <div className="app">
         <div className="topbar">
-          <div className="topbar-logo">Python Labs</div>
+          <div className="topbar-logo">🐍 Python Labs</div>
           <div className="topbar-right">
             <span style={{ fontSize: 12, color: C.textMuted, fontFamily: "JetBrains Mono, monospace" }}>
               {doneTasks}/{totalTasks}
@@ -718,7 +763,9 @@ export default function App() {
 
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div className="el">Ваш код</div>
-                    <div style={{ fontSize: 10, color: C.textMuted, fontFamily: "JetBrains Mono, monospace" }}>вставка запрещена</div>
+                    <div style={{ fontSize: 10, color: C.textMuted, fontFamily: "JetBrains Mono, monospace" }}>
+                      вставка запрещена
+                    </div>
                   </div>
 
                   <textarea
@@ -747,7 +794,9 @@ export default function App() {
                   />
 
                   <div className="actions">
-                    <button className="run-btn" onClick={() => runCode(task.id, task.check)}>▶ Запустить</button>
+                    <button className="run-btn" onClick={() => runCode(task.id, task.check)}>
+                      ▶ Запустить
+                    </button>
                     <button className="hint-btn" onClick={() => setHints(h => ({ ...h, [task.id]: !h[task.id] }))}>
                       {showHint ? "Скрыть подсказку" : "Подсказка"}
                     </button>
