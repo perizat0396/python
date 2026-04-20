@@ -240,7 +240,8 @@ const COLORS = {
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: ${COLORS.bg}; color: ${COLORS.textPrimary}; font-family: 'Syne', sans-serif; }
+  body { background: ${COLORS.bg}; color: ${COLORS.textPrimary}; font-family: 'Syne', sans-serif; user-select: none; -webkit-user-select: none; }
+  input, textarea { user-select: text; -webkit-user-select: text; }
   
   .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: ${COLORS.bg}; position: relative; overflow: hidden; }
   .login-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
@@ -377,6 +378,33 @@ export default function App() {
   const [hints, setHints] = useState({});
   const [labsDone, setLabsDone] = useState({});
   const [tasksDone, setTasksDone] = useState({});
+
+  useEffect(() => {
+    if (screen === "teacher") return;
+    const blockCopy = (e) => {
+      const tag = e.target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if ((e.ctrlKey || e.metaKey) && (e.key === "c" || e.key === "a" || e.key === "x")) {
+        e.preventDefault();
+      }
+    };
+    const blockCopyEvent = (e) => { e.preventDefault(); };
+    const blockContext = (e) => {
+      const tag = e.target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      e.preventDefault();
+    };
+    document.addEventListener("keydown", blockCopy);
+    document.addEventListener("copy", blockCopyEvent);
+    document.addEventListener("cut", blockCopyEvent);
+    document.addEventListener("contextmenu", blockContext);
+    return () => {
+      document.removeEventListener("keydown", blockCopy);
+      document.removeEventListener("copy", blockCopyEvent);
+      document.removeEventListener("cut", blockCopyEvent);
+      document.removeEventListener("contextmenu", blockContext);
+    };
+  }, [screen]);
   const [allStudents, setAllStudents] = useState([]);
   const [expandedStudent, setExpandedStudent] = useState(null);
 
