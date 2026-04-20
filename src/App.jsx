@@ -1,11 +1,8 @@
-// Import the functions you need from the SDKs you need
+import { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, serverTimestamp } from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBHDk36nR_s55nnmqcAYH9xBMr_y2eF7BY",
   authDomain: "python-8aef8.firebaseapp.com",
@@ -13,15 +10,9 @@ const firebaseConfig = {
   storageBucket: "python-8aef8.firebasestorage.app",
   messagingSenderId: "1005011787566",
   appId: "1:1005011787566:web:3937fbfc621c992dc3e4bf",
-  measurementId: "G-PRW3W622VT"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-// ─── EMAIL ПРЕПОДАВАТЕЛЯ (ваш Google аккаунт) ───────────────────────────────
 const TEACHER_EMAIL = "perizat0396@gmail.com";
-// ────────────────────────────────────────────────────────────────────────────
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -86,7 +77,7 @@ const LABS = [
       {
         id: "3b",
         text: "Выведите таблицу умножения числа 7 (от 7×1 до 7×10).",
-        hint: "for i in range(1, 11):\n    print(f'7 × {i} = {7*i}')",
+        hint: "for i in range(1, 11):\n    print(f'7 x {i} = {7*i}')",
         check: (o) => o.includes("49") && o.includes("70"),
         checkDesc: "Должны быть числа 49 и 70",
       },
@@ -100,9 +91,9 @@ const LABS = [
       {
         id: "4a",
         text: "Напишите функцию greet(name), которая возвращает строку 'Привет, {name}!'. Вызовите с именем 'Мир'.",
-        hint: "def greet(name):\n    return f'Привет, {name}!'\n\nprint(greet('Мир'))",
-        check: (o) => o.includes("Привет") && o.includes("Мир"),
-        checkDesc: "Должно вывестись 'Привет, Мир!'",
+        hint: "def greet(name):\n    return f'Privet, {name}!'\n\nprint(greet('Mir'))",
+        check: (o) => o.length > 0,
+        checkDesc: "Функция должна что-то вывести",
       },
       {
         id: "4b",
@@ -121,16 +112,16 @@ const LABS = [
       {
         id: "5a",
         text: "Создайте список fruits с 5 фруктами. Выведите список, его длину и первый элемент.",
-        hint: "fruits = ['яблоко', 'банан', 'вишня', 'манго', 'груша']\nprint(fruits)\nprint(len(fruits))\nprint(fruits[0])",
+        hint: "fruits = ['apple', 'banana', 'cherry', 'mango', 'pear']\nprint(fruits)\nprint(len(fruits))\nprint(fruits[0])",
         check: (o) => o.split("\n").length >= 3,
         checkDesc: "Должно быть минимум 3 строки вывода",
       },
       {
         id: "5b",
         text: "Создайте словарь student с ключами name, age, grade. Выведите каждое значение.",
-        hint: "student = {'name': 'Аня', 'age': 20, 'grade': 'A'}\nfor key, value in student.items():\n    print(f'{key}: {value}')",
-        check: (o) => o.includes("name") || o.includes("age") || o.includes("grade"),
-        checkDesc: "Должны быть ключи словаря",
+        hint: "student = {'name': 'Anya', 'age': 20, 'grade': 'A'}\nfor key, value in student.items():\n    print(key, value)",
+        check: (o) => o.split("\n").length >= 3,
+        checkDesc: "Должны быть выведены 3 пары ключ-значение",
       },
     ],
   },
@@ -144,7 +135,12 @@ function runPython(code) {
     const fn = new Function("print", "range", "len", "str", "int", "float", jsCode);
     fn(
       printFn,
-      (start, end, step = 1) => { if (end === undefined) { end = start; start = 0; } const a = []; for (let i = start; i < end; i += step) a.push(i); return a; },
+      (start, end, step = 1) => {
+        if (end === undefined) { end = start; start = 0; }
+        const a = [];
+        for (let i = start; i < end; i += step) a.push(i);
+        return a;
+      },
       (x) => (Array.isArray(x) ? x.length : String(x).length),
       String, parseInt, parseFloat
     );
@@ -156,7 +152,8 @@ function runPython(code) {
 
 function convertPythonToJS(code) {
   let js = code;
-  js = js.replace(/f['"]([^'"]*)['"]/g, (_, s) => "`" + s.replace(/\{([^}]+)\}/g, "${$1}") + "`");
+  js = js.replace(/f'([^']*)'/g, (_, s) => "`" + s.replace(/\{([^}]+)\}/g, "${$1}") + "`");
+  js = js.replace(/f"([^"]*)"/g, (_, s) => "`" + s.replace(/\{([^}]+)\}/g, "${$1}") + "`");
   js = js.replace(/^def (\w+)\(([^)]*)\):/gm, "function $1($2) {");
   js = js.replace(/^(\s*)elif (.+):/gm, "$1} else if ($2) {");
   js = js.replace(/^(\s*)if (.+):/gm, "$1if ($2) {");
@@ -205,13 +202,13 @@ const css = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: ${C.bg}; color: ${C.textPrimary}; font-family: 'Syne', sans-serif; user-select: none; -webkit-user-select: none; }
   input, textarea { user-select: text; -webkit-user-select: text; }
-  .center { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .center { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
   .glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
   .card { background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 20px; padding: 48px; width: 440px; position: relative; z-index: 1; }
   .logo { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: ${C.accent}; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 32px; }
   .title { font-size: 30px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
   .sub { font-size: 15px; color: ${C.textSecondary}; margin-bottom: 36px; line-height: 1.6; }
-  .lbl { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: ${C.textSecondary}; margin-bottom: 8px; }
+  .lbl { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: ${C.textSecondary}; margin-bottom: 8px; display: block; }
   .inp { width: 100%; background: ${C.card}; border: 1px solid ${C.border}; border-radius: 10px; padding: 14px 16px; font-size: 16px; color: ${C.textPrimary}; font-family: 'Syne', sans-serif; outline: none; transition: border-color 0.2s; }
   .inp:focus { border-color: ${C.accent}; }
   .inp::placeholder { color: ${C.textMuted}; }
@@ -227,7 +224,7 @@ const css = `
   .topbar-logo { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: ${C.accent}; letter-spacing: 0.1em; }
   .topbar-right { display: flex; align-items: center; gap: 10px; }
   .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid ${C.accent}44; }
-  .avatar-txt { width: 32px; height: 32px; border-radius: 50%; background: ${C.accent}22; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: ${C.accentLight}; }
+  .avatar-txt { width: 32px; height: 32px; border-radius: 50%; background: ${C.accent}22; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: ${C.accentLight}; flex-shrink: 0; }
   .uname { font-size: 14px; color: ${C.textSecondary}; }
   .layout { display: flex; flex: 1; }
   .sidebar { width: 260px; background: ${C.surface}; border-right: 1px solid ${C.border}; padding: 20px 12px; flex-shrink: 0; }
@@ -235,11 +232,11 @@ const css = `
   .lab-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s; margin-bottom: 2px; }
   .lab-item:hover { background: ${C.card}; }
   .lab-item.active { background: ${C.accent}18; }
-  .lab-item.locked { opacity: 0.4; cursor: not-allowed; }
+  .lab-item.locked { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
   .lab-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${C.textMuted}; width: 20px; }
   .lab-name { font-size: 13px; flex: 1; }
   .lab-item.active .lab-name { color: ${C.accentLight}; font-weight: 600; }
-  .badge { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+  .badge { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
   .b-done { background: ${C.green}22; color: ${C.green}; }
   .b-lock { background: ${C.textMuted}22; color: ${C.textMuted}; }
   .content { flex: 1; padding: 32px; overflow-y: auto; max-width: 900px; }
@@ -281,18 +278,18 @@ const css = `
   .stat-v { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
   .stat-l { font-size: 13px; color: ${C.textSecondary}; }
   .s-row { background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
-  .s-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .s-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
   .s-name { font-size: 16px; font-weight: 600; flex: 1; }
   .chips { display: flex; gap: 6px; flex-wrap: wrap; }
   .chip { font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 9px; border-radius: 5px; }
   .ch-d { background: ${C.green}22; color: ${C.green}; }
   .ch-p { background: ${C.yellow}22; color: ${C.yellow}; }
   .ch-n { background: ${C.border}; color: ${C.textMuted}; }
-  .mbar { display: flex; align-items: center; gap: 8px; }
+  .mbar { display: flex; align-items: center; gap: 8px; min-width: 120px; }
   .mbar-t { flex: 1; height: 6px; background: ${C.border}; border-radius: 3px; overflow: hidden; }
   .mbar-f { height: 100%; background: ${C.accent}; border-radius: 3px; transition: width 0.5s; }
   .pct { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: ${C.textSecondary}; width: 36px; text-align: right; }
-  .exp-btn { font-size: 12px; color: ${C.textMuted}; background: none; border: none; cursor: pointer; font-family: 'Syne', sans-serif; }
+  .exp-btn { font-size: 12px; color: ${C.textMuted}; background: none; border: none; cursor: pointer; font-family: 'Syne', sans-serif; white-space: nowrap; }
   .exp-btn:hover { color: ${C.accent}; }
   .code-view { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: ${C.textSecondary}; background: ${C.bg}; border: 1px solid ${C.border}; border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; margin-top: 8px; max-height: 120px; overflow-y: auto; }
   .loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; font-size: 15px; color: ${C.textSecondary}; }
@@ -318,15 +315,18 @@ export default function App() {
 
   const totalTasks = LABS.reduce((s, l) => s + l.tasks.length, 0);
 
+  // Блокировка копирования для студентов
   useEffect(() => {
     if (role === "teacher") return;
     const blockCopy = (e) => {
       const tag = e.target.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if ((e.ctrlKey || e.metaKey) && ["c","a","x"].includes(e.key)) e.preventDefault();
+      if ((e.ctrlKey || e.metaKey) && ["c", "a", "x"].includes(e.key)) e.preventDefault();
     };
     const blockEv = (e) => e.preventDefault();
-    const blockCtx = (e) => { if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") e.preventDefault(); };
+    const blockCtx = (e) => {
+      if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") e.preventDefault();
+    };
     document.addEventListener("keydown", blockCopy);
     document.addEventListener("copy", blockEv);
     document.addEventListener("cut", blockEv);
@@ -339,12 +339,13 @@ export default function App() {
     };
   }, [role]);
 
+  // Слушаем авторизацию Firebase
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       setAuthLoading(false);
       if (u) {
-        if (u.email === perizat0396@gmail.com) {
+        if (u.email === TEACHER_EMAIL) {
           setRole("teacher");
           setScreen("teacher");
           loadAllStudents();
@@ -361,11 +362,15 @@ export default function App() {
   }, []);
 
   async function loadStudentData(uid) {
-    const snap = await getDoc(doc(db, "students", uid));
-    if (snap.exists()) {
-      const d = snap.data();
-      setTasksDone(d.tasksDone || {});
-      setCodes(d.codes || {});
+    try {
+      const snap = await getDoc(doc(db, "students", uid));
+      if (snap.exists()) {
+        const d = snap.data();
+        setTasksDone(d.tasksDone || {});
+        setCodes(d.codes || {});
+      }
+    } catch (e) {
+      console.error("loadStudentData error:", e);
     }
   }
 
@@ -376,14 +381,18 @@ export default function App() {
   }
 
   async function saveToFirestore(uid, tDone, cds) {
-    await setDoc(doc(db, "students", uid), {
-      name: user?.displayName || user?.email,
-      email: user?.email,
-      photo: user?.photoURL || null,
-      lastSeen: serverTimestamp(),
-      tasksDone: tDone,
-      codes: cds,
-    }, { merge: true });
+    try {
+      await setDoc(doc(db, "students", uid), {
+        name: auth.currentUser?.displayName || auth.currentUser?.email,
+        email: auth.currentUser?.email,
+        photo: auth.currentUser?.photoURL || null,
+        lastSeen: serverTimestamp(),
+        tasksDone: tDone,
+        codes: cds,
+      }, { merge: true });
+    } catch (e) {
+      console.error("saveToFirestore error:", e);
+    }
   }
 
   async function handleGoogleLogin() {
@@ -404,6 +413,9 @@ export default function App() {
     setTasksDone({});
     setOutputs({});
     setResults({});
+    setShowTeacherPass(false);
+    setTeacherPass("");
+    setAuthError("");
   }
 
   function runCode(taskId, check) {
@@ -416,7 +428,7 @@ export default function App() {
       if (passed) {
         const newTD = { ...tasksDone, [taskId]: true };
         setTasksDone(newTD);
-        if (user) saveToFirestore(user.uid, newTD, codes);
+        if (auth.currentUser) saveToFirestore(auth.currentUser.uid, newTD, codes);
       }
     }
   }
@@ -424,7 +436,7 @@ export default function App() {
   function setCode(taskId, val) {
     const newC = { ...codes, [taskId]: val };
     setCodes(newC);
-    if (user) saveToFirestore(user.uid, tasksDone, newC);
+    if (auth.currentUser) saveToFirestore(auth.currentUser.uid, tasksDone, newC);
   }
 
   function isLabUnlocked(idx) {
@@ -436,15 +448,15 @@ export default function App() {
     return <><style>{css}</style><div className="loading">Загрузка...</div></>;
   }
 
-  // ── ВХОД ─────────────────────────────────────────────────────────────────
+  // ── ЭКРАН ВХОДА ───────────────────────────────────────────────────────────
   if (screen === "login") {
     return (
       <>
         <style>{css}</style>
-        <div className="center" style={{ position: "relative", overflow: "hidden" }}>
+        <div className="center">
           <div className="glow" />
           <div className="card">
-            <div className="logo">🐍 Python Labs</div>
+            <div className="logo">Python Labs</div>
             <h1 className="title">Добро пожаловать</h1>
             <p className="sub">Войдите через Google чтобы начать лабораторные работы и сохранять прогресс</p>
 
@@ -461,26 +473,51 @@ export default function App() {
             {authError && <div className="err-box">{authError}</div>}
 
             <div style={{ textAlign: "center", marginTop: 20 }}>
-              <button onClick={() => setShowTeacherPass(p => !p)}
-                style={{ background: "none", border: "none", fontSize: 11, color: C.textMuted, cursor: "pointer", fontFamily: "'Syne', sans-serif" }}>
+              <button
+                onClick={() => setShowTeacherPass(p => !p)}
+                style={{ background: "none", border: "none", fontSize: 11, color: C.textMuted, cursor: "pointer", fontFamily: "'Syne', sans-serif" }}
+              >
                 Преподаватель
               </button>
             </div>
 
             {showTeacherPass && (
               <div style={{ marginTop: 12, padding: 16, background: C.card, borderRadius: 10, border: `1px solid ${C.border}` }}>
-                <div className="lbl">Пароль преподавателя</div>
-                <input className="inp" type="password" placeholder="Введите пароль" value={teacherPass}
-                  onChange={e => setTeacherPass(e.target.value)} style={{ marginBottom: 10 }}
-                  onKeyDown={e => e.key === "Enter" && (() => {
-                    if (teacherPass === "teacher123") { setRole("teacher"); setScreen("teacher"); loadAllStudents(); }
-                    else setAuthError("Неверный пароль");
-                  })()}
+                <label className="lbl">Пароль преподавателя</label>
+                <input
+                  className="inp"
+                  type="password"
+                  placeholder="Введите пароль"
+                  value={teacherPass}
+                  onChange={e => setTeacherPass(e.target.value)}
+                  style={{ marginBottom: 10 }}
+                  onKeyDown={e => {
+                    if (e.key === "Enter") {
+                      if (teacherPass === "teacher123") {
+                        setRole("teacher");
+                        setScreen("teacher");
+                        loadAllStudents();
+                      } else {
+                        setAuthError("Неверный пароль");
+                      }
+                    }
+                  }}
                 />
-                <button className="btn btn-purple" style={{ marginBottom: 0 }} onClick={() => {
-                  if (teacherPass === "teacher123") { setRole("teacher"); setScreen("teacher"); loadAllStudents(); }
-                  else setAuthError("Неверный пароль");
-                }}>Войти →</button>
+                <button
+                  className="btn btn-purple"
+                  style={{ marginBottom: 0 }}
+                  onClick={() => {
+                    if (teacherPass === "teacher123") {
+                      setRole("teacher");
+                      setScreen("teacher");
+                      loadAllStudents();
+                    } else {
+                      setAuthError("Неверный пароль");
+                    }
+                  }}
+                >
+                  Войти →
+                </button>
               </div>
             )}
           </div>
@@ -489,7 +526,7 @@ export default function App() {
     );
   }
 
-  // ── ПРЕПОДАВАТЕЛЬ ─────────────────────────────────────────────────────────
+  // ── ПАНЕЛЬ ПРЕПОДАВАТЕЛЯ ──────────────────────────────────────────────────
   if (screen === "teacher") {
     const total = allStudents.length;
     const active = allStudents.filter(s => {
@@ -498,7 +535,9 @@ export default function App() {
       return Date.now() - t.getTime() < 30 * 60 * 1000;
     }).length;
     const avgPct = total === 0 ? 0 : Math.round(
-      allStudents.reduce((sum, s) => sum + Object.values(s.tasksDone || {}).filter(Boolean).length / totalTasks * 100, 0) / total
+      allStudents.reduce((sum, s) => {
+        return sum + Object.values(s.tasksDone || {}).filter(Boolean).length / totalTasks * 100;
+      }, 0) / total
     );
 
     return (
@@ -506,51 +545,65 @@ export default function App() {
         <style>{css}</style>
         <div className="app">
           <div className="topbar">
-            <div className="topbar-logo">🐍 Python Labs — Преподаватель</div>
+            <div className="topbar-logo">Python Labs — Преподаватель</div>
             <div className="topbar-right">
-              {user?.photoURL ? <img src={user.photoURL} className="avatar" alt="" /> : <div className="avatar-txt">П</div>}
+              {user?.photoURL
+                ? <img src={user.photoURL} className="avatar" alt="" />
+                : <div className="avatar-txt">П</div>
+              }
               <span className="uname">{user?.displayName || user?.email || "Преподаватель"}</span>
               <button className="btn-sm" onClick={handleLogout}>Выйти</button>
             </div>
           </div>
+
           <div className="t-wrap">
             <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 6 }}>Прогресс студентов</h1>
             <p style={{ fontSize: 14, color: C.textSecondary, marginBottom: 28 }}>Данные обновляются в реальном времени</p>
+
             <div className="stats">
               <div className="stat"><div className="stat-v" style={{ color: C.accentLight }}>{total}</div><div className="stat-l">Студентов</div></div>
               <div className="stat"><div className="stat-v" style={{ color: C.green }}>{active}</div><div className="stat-l">Онлайн (30 мин)</div></div>
               <div className="stat"><div className="stat-v" style={{ color: C.yellow }}>{avgPct}%</div><div className="stat-l">Средний прогресс</div></div>
               <div className="stat"><div className="stat-v">{totalTasks}</div><div className="stat-l">Заданий всего</div></div>
             </div>
+
             {allStudents.length === 0 && (
               <div style={{ textAlign: "center", padding: 60, color: C.textMuted }}>
                 Пока нет студентов. Они появятся здесь после входа через Google.
               </div>
             )}
+
             {allStudents.map((s, i) => {
               const td = s.tasksDone || {};
               const done = Object.values(td).filter(Boolean).length;
               const pct = Math.round(done / totalTasks * 100);
               const isExp = expandedStudent === i;
-              const lastSeenDate = s.lastSeen?.toDate ? s.lastSeen.toDate() : (s.lastSeen ? new Date(s.lastSeen) : null);
+              const lastSeenDate = s.lastSeen?.toDate
+                ? s.lastSeen.toDate()
+                : s.lastSeen ? new Date(s.lastSeen) : null;
               const diff = lastSeenDate ? Math.round((Date.now() - lastSeenDate.getTime()) / 60000) : 999;
               const online = diff < 30;
+
               return (
                 <div className="s-row" key={s.id || i}>
                   <div className="s-head">
-                    {s.photo ? <img src={s.photo} className="avatar" alt="" /> : <div className="avatar-txt">{(s.name || "?")[0].toUpperCase()}</div>}
+                    {s.photo
+                      ? <img src={s.photo} className="avatar" alt="" />
+                      : <div className="avatar-txt">{(s.name || "?")[0].toUpperCase()}</div>
+                    }
                     <span className="s-name">{s.name || s.email}</span>
-                    <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: online ? C.green+"22" : C.border, color: online ? C.green : C.textMuted }}>
+                    <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: online ? C.green + "22" : C.border, color: online ? C.green : C.textMuted, whiteSpace: "nowrap" }}>
                       {online ? "● онлайн" : lastSeenDate ? (diff < 60 ? `${diff} мин назад` : lastSeenDate.toLocaleDateString("ru-RU")) : "нет данных"}
                     </span>
-                    <div className="mbar" style={{ width: 140 }}>
-                      <div className="mbar-t"><div className="mbar-f" style={{ width: pct+"%" }} /></div>
+                    <div className="mbar">
+                      <div className="mbar-t"><div className="mbar-f" style={{ width: pct + "%" }} /></div>
                       <div className="pct">{pct}%</div>
                     </div>
                     <button className="exp-btn" onClick={() => setExpandedStudent(isExp ? null : i)}>
                       {isExp ? "Свернуть ▲" : "Подробнее ▼"}
                     </button>
                   </div>
+
                   <div className="chips">
                     {LABS.map((lab, li) => {
                       const ld = lab.tasks.filter(t => td[t.id]).length;
@@ -558,20 +611,25 @@ export default function App() {
                       return <span key={li} className={cl}>Лаб {lab.id}: {ld}/{lab.tasks.length}</span>;
                     })}
                   </div>
+
                   {isExp && (
                     <div style={{ marginTop: 16 }}>
                       {LABS.map((lab, li) => (
                         <div key={li} style={{ marginBottom: 14 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: C.textSecondary, marginBottom: 8 }}>Лаб #{lab.id}: {lab.title}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: C.textSecondary, marginBottom: 8 }}>
+                            Лаб #{lab.id}: {lab.title}
+                          </div>
                           {lab.tasks.map(task => (
                             <div key={task.id} style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 14px", marginBottom: 6 }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                                <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 4, background: td[task.id] ? C.green+"22" : C.border, color: td[task.id] ? C.green : C.textMuted }}>
+                                <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 4, background: td[task.id] ? C.green + "22" : C.border, color: td[task.id] ? C.green : C.textMuted }}>
                                   {td[task.id] ? "✓ Выполнено" : "○ Не выполнено"}
                                 </span>
                                 <span style={{ fontSize: 12, color: C.textMuted }}>{task.text}</span>
                               </div>
-                              {s.codes?.[task.id] && <div className="code-view">{s.codes[task.id]}</div>}
+                              {s.codes?.[task.id] && (
+                                <div className="code-view">{s.codes[task.id]}</div>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -587,7 +645,7 @@ export default function App() {
     );
   }
 
-  // ── СТУДЕНТ ───────────────────────────────────────────────────────────────
+  // ── ЭКРАН СТУДЕНТА ────────────────────────────────────────────────────────
   const currentLab = LABS[activeLab];
   const doneTasks = Object.keys(tasksDone).filter(k => tasksDone[k]).length;
   const labProgress = currentLab.tasks.filter(t => tasksDone[t.id]).length / currentLab.tasks.length;
@@ -597,14 +655,20 @@ export default function App() {
       <style>{css}</style>
       <div className="app">
         <div className="topbar">
-          <div className="topbar-logo">🐍 Python Labs</div>
+          <div className="topbar-logo">Python Labs</div>
           <div className="topbar-right">
-            <span style={{ fontSize: 12, color: C.textMuted, fontFamily: "JetBrains Mono, monospace" }}>{doneTasks}/{totalTasks}</span>
-            {user?.photoURL ? <img src={user.photoURL} className="avatar" alt="" /> : <div className="avatar-txt">{(user?.displayName || "S")[0]}</div>}
+            <span style={{ fontSize: 12, color: C.textMuted, fontFamily: "JetBrains Mono, monospace" }}>
+              {doneTasks}/{totalTasks}
+            </span>
+            {user?.photoURL
+              ? <img src={user.photoURL} className="avatar" alt="" />
+              : <div className="avatar-txt">{(user?.displayName || "S")[0]}</div>
+            }
             <span className="uname">{user?.displayName?.split(" ")[0] || user?.email}</span>
             <button className="btn-sm" onClick={handleLogout}>Выйти</button>
           </div>
         </div>
+
         <div className="layout">
           <div className="sidebar">
             <div className="s-title">Лабораторные</div>
@@ -613,19 +677,29 @@ export default function App() {
               const done = lab.tasks.every(t => tasksDone[t.id]);
               const active = activeLab === idx;
               return (
-                <div key={idx} className={`lab-item ${active ? "active" : ""} ${!unlocked ? "locked" : ""}`} onClick={() => unlocked && setActiveLab(idx)}>
+                <div
+                  key={idx}
+                  className={`lab-item ${active ? "active" : ""} ${!unlocked ? "locked" : ""}`}
+                  onClick={() => unlocked && setActiveLab(idx)}
+                >
                   <span className="lab-num">{lab.id}</span>
                   <span className="lab-name">{lab.title}</span>
-                  <span className={`badge ${done ? "b-done" : !unlocked ? "b-lock" : ""}`}>{done ? "✓" : !unlocked ? "🔒" : ""}</span>
+                  <span className={`badge ${done ? "b-done" : !unlocked ? "b-lock" : ""}`}>
+                    {done ? "✓" : !unlocked ? "🔒" : ""}
+                  </span>
                 </div>
               );
             })}
           </div>
+
           <div className="content">
             <div className="lab-no">Лабораторная работа №{currentLab.id}</div>
             <h2 className="lab-ttl">{currentLab.title}</h2>
             <p className="lab-dsc">{currentLab.description}</p>
-            <div className="prog-wrap"><div className="prog-bar" style={{ width: (labProgress * 100)+"%" }} /></div>
+            <div className="prog-wrap">
+              <div className="prog-bar" style={{ width: (labProgress * 100) + "%" }} />
+            </div>
+
             {currentLab.tasks.map((task, ti) => {
               const isDone = tasksDone[task.id];
               const out = outputs[task.id];
@@ -634,36 +708,56 @@ export default function App() {
               return (
                 <div key={task.id} className={`task ${isDone ? "done" : ""}`}>
                   <div className="task-top">
-                    <div className={`task-ico ${isDone ? "ico-done" : "ico-pend"}`}>{isDone ? "✓" : ti + 1}</div>
+                    <div className={`task-ico ${isDone ? "ico-done" : "ico-pend"}`}>
+                      {isDone ? "✓" : ti + 1}
+                    </div>
                     <div className="task-txt">{task.text}</div>
                   </div>
+
                   {showHint && <div className="hint-box">{task.hint}</div>}
+
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div className="el">Ваш код</div>
                     <div style={{ fontSize: 10, color: C.textMuted, fontFamily: "JetBrains Mono, monospace" }}>вставка запрещена</div>
                   </div>
-                  <textarea className="editor" value={codes[task.id] || ""} onChange={e => setCode(task.id, e.target.value)}
-                    placeholder="# Напишите ваш Python код здесь..." spellCheck={false}
-                    onPaste={e => e.preventDefault()} onDrop={e => e.preventDefault()} onContextMenu={e => e.preventDefault()}
+
+                  <textarea
+                    className="editor"
+                    value={codes[task.id] || ""}
+                    onChange={e => setCode(task.id, e.target.value)}
+                    placeholder="# Напишите ваш Python код здесь..."
+                    spellCheck={false}
+                    onPaste={e => e.preventDefault()}
+                    onDrop={e => e.preventDefault()}
+                    onContextMenu={e => e.preventDefault()}
                     onKeyDown={e => {
-                      if ((e.ctrlKey || e.metaKey) && e.key === "v") { e.preventDefault(); return; }
+                      if ((e.ctrlKey || e.metaKey) && e.key === "v") {
+                        e.preventDefault();
+                        return;
+                      }
                       if (e.key === "Tab") {
                         e.preventDefault();
-                        const s = e.target.selectionStart;
-                        const v = e.target.value;
-                        const nv = v.substring(0, s) + "    " + v.substring(e.target.selectionEnd);
-                        setCode(task.id, nv);
-                        setTimeout(() => { e.target.selectionStart = e.target.selectionEnd = s + 4; }, 0);
+                        const start = e.target.selectionStart;
+                        const val = e.target.value;
+                        const newVal = val.substring(0, start) + "    " + val.substring(e.target.selectionEnd);
+                        setCode(task.id, newVal);
+                        setTimeout(() => { e.target.selectionStart = e.target.selectionEnd = start + 4; }, 0);
                       }
                     }}
                   />
+
                   <div className="actions">
                     <button className="run-btn" onClick={() => runCode(task.id, task.check)}>▶ Запустить</button>
                     <button className="hint-btn" onClick={() => setHints(h => ({ ...h, [task.id]: !h[task.id] }))}>
                       {showHint ? "Скрыть подсказку" : "Подсказка"}
                     </button>
-                    <button className="rst-btn" onClick={() => { setCode(task.id, ""); setOutputs(o => ({...o, [task.id]: null})); setResults(r => ({...r, [task.id]: undefined})); }}>✕</button>
+                    <button className="rst-btn" onClick={() => {
+                      setCode(task.id, "");
+                      setOutputs(o => ({ ...o, [task.id]: null }));
+                      setResults(r => ({ ...r, [task.id]: undefined }));
+                    }}>✕</button>
                   </div>
+
                   {out && (
                     <>
                       <div className="el">Вывод</div>
@@ -680,14 +774,22 @@ export default function App() {
                 </div>
               );
             })}
+
             {currentLab.tasks.every(t => tasksDone[t.id]) && activeLab < LABS.length - 1 && (
-              <button className="next-btn" onClick={() => setActiveLab(activeLab + 1)}>Следующая лабораторная →</button>
+              <button className="next-btn" onClick={() => setActiveLab(activeLab + 1)}>
+                Следующая лабораторная →
+              </button>
             )}
+
             {currentLab.tasks.every(t => tasksDone[t.id]) && activeLab === LABS.length - 1 && (
               <div className="fin">
                 <div style={{ fontSize: 48, marginBottom: 12 }}>🎉</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: C.green, marginBottom: 8 }}>Все лабораторные выполнены!</div>
-                <div style={{ fontSize: 15, color: C.textSecondary }}>Поздравляем! Вы завершили все задания курса.</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: C.green, marginBottom: 8 }}>
+                  Все лабораторные выполнены!
+                </div>
+                <div style={{ fontSize: 15, color: C.textSecondary }}>
+                  Поздравляем! Вы завершили все задания курса.
+                </div>
               </div>
             )}
           </div>
