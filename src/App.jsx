@@ -90,8 +90,8 @@ const LABS = [
     tasks: [
       {
         id: "4a",
-        text: "Напишите функцию greet(name), которая возвращает строку 'Privet, {name}!'. Вызовите с именем 'Mir'.",
-        hint: "def greet(name):\n    return f'Privet, {name}!'\n\nprint(greet('Mir'))",
+        text: "Напишите функцию greet(name) которая выводит 'Hello, {name}!'. Вызовите с именем 'World'.",
+        hint: "def greet(name):\n    print(f'Hello, {name}!')\n\ngreet('World')",
         check: (o) => o.trim().length > 0,
         checkDesc: "Функция должна что-то вывести",
       },
@@ -211,20 +211,7 @@ const css = `
   .google-btn { width: 100%; background: #fff; color: #1f1f1f; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px 20px; font-size: 15px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 12px; }
   .google-btn:hover { background: #f8f8f8; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
   .google-btn:active { transform: scale(0.98); }
-  .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
-  .divider-line { flex: 1; height: 1px; background: ${C.border}; }
-  .divider-txt { font-size: 12px; color: ${C.textMuted}; }
-  .teacher-toggle { width: 100%; background: transparent; border: 1px solid ${C.border}; border-radius: 12px; padding: 13px 20px; font-size: 14px; color: ${C.textSecondary}; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.2s; }
-  .teacher-toggle:hover { border-color: ${C.accent}44; color: ${C.textPrimary}; }
-  .teacher-box { margin-top: 12px; padding: 18px; background: ${C.card}; border-radius: 12px; border: 1px solid ${C.border}; }
-  .lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: ${C.textMuted}; margin-bottom: 8px; display: block; }
-  .inp { width: 100%; background: ${C.bg}; border: 1px solid ${C.border}; border-radius: 8px; padding: 12px 14px; font-size: 15px; color: ${C.textPrimary}; font-family: 'Syne', sans-serif; outline: none; transition: border-color 0.2s; margin-bottom: 10px; }
-  .inp:focus { border-color: ${C.accent}; }
-  .inp::placeholder { color: ${C.textMuted}; }
-  .btn-purple { width: 100%; background: ${C.accent}; color: #fff; border: none; border-radius: 8px; padding: 13px; font-size: 14px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; transition: background 0.2s; }
-  .btn-purple:hover { background: ${C.accentLight}; }
-  .err-box { background: ${C.red}11; border: 1px solid ${C.red}33; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: ${C.red}; margin-top: 12px; line-height: 1.5; }
-
+  .err-box { background: ${C.red}11; border: 1px solid ${C.red}33; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: ${C.red}; margin-top: 14px; line-height: 1.5; }
   .app { min-height: 100vh; display: flex; flex-direction: column; }
   .topbar { background: ${C.surface}; border-bottom: 1px solid ${C.border}; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .topbar-logo { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: ${C.accent}; letter-spacing: 0.1em; }
@@ -234,7 +221,6 @@ const css = `
   .uname { font-size: 14px; color: ${C.textSecondary}; }
   .btn-sm { background: transparent; color: ${C.textSecondary}; border: 1px solid ${C.border}; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-family: 'Syne', sans-serif; cursor: pointer; transition: all 0.2s; }
   .btn-sm:hover { border-color: ${C.accent}; color: ${C.accent}; }
-
   .layout { display: flex; flex: 1; }
   .sidebar { width: 260px; background: ${C.surface}; border-right: 1px solid ${C.border}; padding: 20px 12px; flex-shrink: 0; }
   .s-title { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: ${C.textMuted}; padding: 0 8px; margin-bottom: 12px; }
@@ -248,14 +234,12 @@ const css = `
   .badge { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
   .b-done { background: ${C.green}22; color: ${C.green}; }
   .b-lock { background: ${C.textMuted}22; color: ${C.textMuted}; }
-
   .content { flex: 1; padding: 32px; overflow-y: auto; max-width: 900px; }
   .lab-no { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${C.accent}; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
   .lab-ttl { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
   .lab-dsc { font-size: 15px; color: ${C.textSecondary}; line-height: 1.6; }
   .prog-wrap { height: 4px; background: ${C.border}; border-radius: 2px; margin: 20px 0 28px; overflow: hidden; }
   .prog-bar { height: 100%; background: ${C.accent}; border-radius: 2px; transition: width 0.5s ease; }
-
   .task { background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 16px; padding: 24px; margin-bottom: 20px; }
   .task.done { border-color: ${C.green}44; }
   .task-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
@@ -283,7 +267,6 @@ const css = `
   .next-btn { display: flex; align-items: center; gap: 6px; background: ${C.accent}; color: #fff; border: none; border-radius: 10px; padding: 13px 22px; font-size: 15px; font-weight: 600; font-family: 'Syne', sans-serif; cursor: pointer; margin-top: 20px; }
   .next-btn:hover { background: ${C.accentLight}; }
   .fin { background: ${C.green}0f; border: 1px solid ${C.green}33; border-radius: 16px; padding: 32px; text-align: center; margin-top: 20px; }
-
   .t-wrap { flex: 1; padding: 32px; overflow-y: auto; }
   .stats { display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
   .stat { background: ${C.surface}; border: 1px solid ${C.border}; border-radius: 12px; padding: 20px 24px; flex: 1; min-width: 130px; }
@@ -304,7 +287,7 @@ const css = `
   .exp-btn { font-size: 12px; color: ${C.textMuted}; background: none; border: none; cursor: pointer; font-family: 'Syne', sans-serif; white-space: nowrap; }
   .exp-btn:hover { color: ${C.accent}; }
   .code-view { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: ${C.textSecondary}; background: ${C.bg}; border: 1px solid ${C.border}; border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; margin-top: 8px; max-height: 120px; overflow-y: auto; }
-  .loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; background: ${C.bg}; }
   .spinner { width: 36px; height: 36px; border: 3px solid ${C.border}; border-top-color: ${C.accent}; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 `;
@@ -322,8 +305,6 @@ export default function App() {
   const [allStudents, setAllStudents] = useState([]);
   const [expandedStudent, setExpandedStudent] = useState(null);
   const [authError, setAuthError] = useState("");
-  const [teacherPass, setTeacherPass] = useState("");
-  const [showTeacherPass, setShowTeacherPass] = useState(false);
   const [role, setRole] = useState("student");
 
   const totalTasks = LABS.reduce((s, l) => s + l.tasks.length, 0);
@@ -429,8 +410,6 @@ export default function App() {
     setTasksDone({});
     setOutputs({});
     setResults({});
-    setShowTeacherPass(false);
-    setTeacherPass("");
     setAuthError("");
   }
 
@@ -465,7 +444,7 @@ export default function App() {
     return (
       <>
         <style>{css}</style>
-        <div className="loading" style={{ background: C.bg }}>
+        <div className="loading">
           <div className="spinner" />
           <span style={{ fontSize: 14, color: C.textMuted }}>Загрузка...</span>
         </div>
@@ -481,14 +460,11 @@ export default function App() {
         <div className="center">
           <div className="glow" />
           <div className="login-card">
-            <div className="login-badge">
-              <span>🐍</span> Python Labs
-            </div>
+            <div className="login-badge">🐍 Python Labs</div>
             <h1 className="login-title">Войдите чтобы начать</h1>
             <p className="login-sub">
               Войдите через Google — прогресс сохраняется автоматически и доступен с любого устройства.
             </p>
-
             <button className="google-btn" onClick={handleGoogleLogin}>
               <svg width="20" height="20" viewBox="0 0 48 48">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -498,54 +474,7 @@ export default function App() {
               </svg>
               Войти через Google
             </button>
-
             {authError && <div className="err-box">{authError}</div>}
-
-            <div className="divider">
-              <div className="divider-line" />
-              <span className="divider-txt">преподаватель</span>
-              <div className="divider-line" />
-            </div>
-
-            <button className="teacher-toggle" onClick={() => { setShowTeacherPass(p => !p); setAuthError(""); }}>
-              {showTeacherPass ? "Скрыть ▲" : "Войти как преподаватель ▼"}
-            </button>
-
-            {showTeacherPass && (
-              <div className="teacher-box">
-                <label className="lbl">Пароль</label>
-                <input
-                  className="inp"
-                  type="password"
-                  placeholder="Введите пароль"
-                  value={teacherPass}
-                  onChange={e => setTeacherPass(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === "Enter") {
-                      if (teacherPass === "teacher123") {
-                        setRole("teacher");
-                        setScreen("teacher");
-                        loadAllStudents();
-                      } else {
-                        setAuthError("Неверный пароль");
-                      }
-                    }
-                  }}
-                />
-                <button className="btn-purple" onClick={() => {
-                  if (teacherPass === "teacher123") {
-                    setRole("teacher");
-                    setScreen("teacher");
-                    loadAllStudents();
-                  } else {
-                    setAuthError("Неверный пароль");
-                  }
-                }}>
-                  Войти →
-                </button>
-                {authError && <div className="err-box" style={{ marginTop: 10 }}>{authError}</div>}
-              </div>
-            )}
           </div>
         </div>
       </>
@@ -576,7 +505,7 @@ export default function App() {
                 ? <img src={user.photoURL} className="avatar" alt="" />
                 : <div className="avatar-txt">П</div>
               }
-              <span className="uname">{user?.displayName || user?.email || "Преподаватель"}</span>
+              <span className="uname">{user?.displayName || user?.email}</span>
               <button className="btn-sm" onClick={handleLogout}>Выйти</button>
             </div>
           </div>
