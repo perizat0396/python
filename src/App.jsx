@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// ─── ЗАМЕНИТЕ НА ВАШИ ДАННЫЕ ИЗ FIREBASE CONSOLE ───────────────────────────
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
- apiKey: "AIzaSyBHDk36nR_s55nnmqcAYH9xBMr_y2eF7BY",
+  apiKey: "AIzaSyBHDk36nR_s55nnmqcAYH9xBMr_y2eF7BY",
   authDomain: "python-8aef8.firebaseapp.com",
   projectId: "python-8aef8",
   storageBucket: "python-8aef8.firebasestorage.app",
@@ -15,8 +15,12 @@ const firebaseConfig = {
   appId: "1:1005011787566:web:3937fbfc621c992dc3e4bf",
   measurementId: "G-PRW3W622VT"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 // ─── EMAIL ПРЕПОДАВАТЕЛЯ (ваш Google аккаунт) ───────────────────────────────
-const TEACHER_EMAIL = "ВАШ_EMAIL@gmail.com";
+const TEACHER_EMAIL = "perizat0396@gmail.com";
 // ────────────────────────────────────────────────────────────────────────────
 
 const app = initializeApp(firebaseConfig);
